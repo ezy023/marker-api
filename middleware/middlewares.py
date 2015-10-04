@@ -16,7 +16,6 @@ class UserAuthMiddleware(object):
                 if not valid_user:
                     return HttpResponseForbidden()
 
-                request.user = valid_user
             else:
                 return HttpResponseForbidden()
 
@@ -27,8 +26,8 @@ class UserAuthMiddleware(object):
 
 
     def _auth_user_with_access_token(self, request, access_token):
-        user = User.objects.filter(token__token=access_token).first()
-        auth_user = authenticate(username=user.username)
+        auth_user = authenticate(access_token=access_token)
+        login(request, auth_user)
         return auth_user
 
     def _merge_get_post_dicts(self, get_dict, post_dict):

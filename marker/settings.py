@@ -81,6 +81,7 @@ AUTHENTICATION_BACKENDS = (
 
 # Custom Auth Model
 AUTH_USER_MODEL = 'accounts.User'
+# CUSTOM_USER_MODEL = 'accounts.User'
 
 # Database
 # https://docs.djangoproject.com/en/1.8/ref/settings/#databases

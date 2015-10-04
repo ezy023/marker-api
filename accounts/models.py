@@ -2,13 +2,12 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 
 class MyAuthBackend(object):
-    def authenticate(self, username=None):
-        user = User.objects.get(username=username)
+    def authenticate(self, access_token=None):
+        user = User.objects.filter(token__token=access_token).first()
         if user:
             return user
         else:
-            user = User.objects.create(username=username)
-            return user
+            raise User.DoesNotExist
 
     def get_user(self, user_id):
         user = User.objects.get(id=user_id)
@@ -18,7 +17,7 @@ class User(AbstractBaseUser):
     username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(max_length=100, unique=True)
 
-    USERNAME_FIELD = 'username'
+    USERNAME_FIELD = 'username' # consider changing this to the email field
 
     class Meta:
         db_table = 'users'
