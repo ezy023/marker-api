@@ -132,10 +132,12 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'DEBUG',
             },
+        'accounts': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            },
             }
     }
-
-ALL_LOGGER = "all"
 
 
 # Internationalization
