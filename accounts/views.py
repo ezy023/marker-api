@@ -13,9 +13,9 @@ from accounts.models import User
 from oauth.decorators import noauth
 from oauth.models import Token
 
+logger = logging.getLogger(__name__)
 
 def create_user(request):
-    # Need to add the retrieval of the oauth token
     if request.POST:
         form = UserRegistrationForm(data=request.POST)
         if form.is_valid():
@@ -27,11 +27,14 @@ def create_user(request):
                 user.save()
                 token = Token.create_token()
                 user.token_set.add(token)
+
+            logger.info("New user created. Username: %s Email: %s", user.username, user.email)
             user_dict = user.to_dict()
             user_dict['access_token'] = token.token
             data = json.dumps(user_dict)
             return HttpResponse(data)
         else:
+            logger.error("Invalid form to create new user. Errors: %s", form.errors)
             data = json.dumps(form.errors)
             return HttpResponseBadRequest(data)
     else:
@@ -48,6 +51,7 @@ def login_user(request):
     try:
         user = authenticate(username=username, password=password)
     except User.DoesNotExist as e:
+        logger.error("Error logging in user. Username: %s. %s", username, e.message)
         return HttpResponseNotFound("Invalid username and password")
 
     if not user:
