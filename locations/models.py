@@ -18,6 +18,7 @@ class Location(models.Model):
     def to_dict(self):
         dict = {
             "id": self.id,
+            "user": self.user.id,
             "lat": str(self.latitude),
             "lng": str(self.longitude),
             "image_url": self.image_url,
