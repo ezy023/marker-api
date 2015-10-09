@@ -80,6 +80,7 @@ class LocationsTestCase(TestCase):
             "location_id": 2,
         }
         req = self.factory.post('delete/', post_data)
+        req.user = self.user
         resp = delete_location(req)
         resp_data = json.loads(resp.content)
 
