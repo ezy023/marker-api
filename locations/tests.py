@@ -35,7 +35,7 @@ class LocationsTestCase(TestCase):
         resp_data = json.loads(resp.content)
 
         self.assertEqual(200, resp.status_code)
-        self.assertEqual(2, resp_data.get('id'))
+        self.assertEqual(1, resp_data.get('id'))
         self.assertEqual('45.12345', resp_data.get('lat'))
         self.assertEqual('90.67891', resp_data.get('lng'))
         self.assertEqual("fake.picture.url", resp_data.get('image_url'))
@@ -73,19 +73,13 @@ class LocationsTestCase(TestCase):
 
         self.assertEqual(400, resp.status_code)
 
-
-class LocationDeleteTestCase(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.user = User.objects.create(username="test_user", email="test@mail.com")
-
     def test_delete_location(self):
         Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url", user=self.user)
         post_data = {
-            "location_id": 1,
+            "location_id": 2,
         }
         req = self.factory.post('delete/', post_data)
         resp = delete_location(req)
         resp_data = json.loads(resp.content)
 
-        self.assertEqual('1', resp_data.get('id'))
+        self.assertEqual('2', resp_data.get('id'))
