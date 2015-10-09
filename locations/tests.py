@@ -8,6 +8,7 @@ from mock import patch
 
 from accounts.models import User
 from locations.models import Location
+from locations.views import all_locations
 from locations.views import create_location
 from locations.views import delete_location
 
@@ -83,3 +84,13 @@ class LocationsTestCase(TestCase):
         resp_data = json.loads(resp.content)
 
         self.assertEqual('2', resp_data.get('id'))
+
+    def test_get_all_locations(self):
+        Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url", user=self.user)
+        Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url2", user=self.user)
+        req = self.factory.get('locations/')
+        req.user = self.user
+        resp = all_locations(req)
+        resp_data = json.loads(resp.content)
+
+        self.assertEqual(2, len(resp_data.get('data')))

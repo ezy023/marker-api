@@ -24,7 +24,7 @@ def create_location(request):
         error_data = json.dumps(form.errors)
         return HttpResponseBadRequest(error_data)
 
-
+# require post request
 def delete_location(request):
     location_id = request.POST.get('location_id')
     if not location_id:
@@ -42,6 +42,16 @@ def delete_location(request):
 
     return HttpResponse(json.dumps(resp_data))
 
+
+def all_locations(request):
+    user = request.user
+    locations = user.location_set.all()
+    location_dicts = map(lambda l: l.to_dict(), locations)
+    data = {
+        "data": location_dicts,
+    }
+
+    return HttpResponse(json.dumps(data))
 
 
 def _handle_image_upload(image_file):
