@@ -7,20 +7,21 @@ from django.http import HttpResponseForbidden
 from accounts.models import User
 
 class UserAuthMiddleware(object):
-    def process_request(self, request):
-        try:
-            request_dict = self._merge_get_post_dicts(request.GET, request.POST)
-            access_token = request_dict.get('access_token')
-            if access_token:
-                valid_user = self._auth_user_with_access_token(request, access_token)
-                if not valid_user:
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        if not getattr(view_func, 'noauth', False):
+            try:
+                request_dict = self._merge_get_post_dicts(request.GET, request.POST)
+                access_token = request_dict.get('access_token')
+                if access_token:
+                    valid_user = self._auth_user_with_access_token(request, access_token)
+                    if not valid_user:
+                        return HttpResponseForbidden()
+
+                else:
                     return HttpResponseForbidden()
 
-            else:
+            except Exception as e:
                 return HttpResponseForbidden()
-
-        except Exception as e:
-            return HttpResponseForbidden()
 
         return None
 

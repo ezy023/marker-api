@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('password', models.CharField(max_length=128, verbose_name='password')),
                 ('last_login', models.DateTimeField(null=True, verbose_name='last login', blank=True)),
                 ('username', models.CharField(unique=True, max_length=30)),
-                ('email', models.EmailField(max_length=254)),
+                ('email', models.EmailField(unique=True, max_length=100)),
             ],
             options={
                 'db_table': 'users',

@@ -2,12 +2,15 @@ import json
 
 from django.test import RequestFactory
 from django.test import TestCase
+from mock import patch
 
 from accounts.models import User
 from accounts.views import create_user
+from accounts.views import login_user
+from oauth.models import Token
 
 
-class UserCreateTests(TestCase):
+class UserCreationTestCase(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
 
@@ -57,3 +60,49 @@ class UserCreateTests(TestCase):
         resp = create_user(req)
 
         self.assertEqual(405, resp.status_code)
+
+
+class UserLoginTestCase(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        self.test_user_password = "password"
+        self.test_user = User(username="testuser",
+                              email="test@example.com")
+        self.test_user.set_password(self.test_user_password)
+        self.test_user.save()
+        self.access_token = Token(token="test_access_token")
+        self.test_user.token_set.add(self.access_token)
+
+
+    def test_user_login_with_valid_credentials(self):
+        post_data = {
+            'username': "testuser",
+            'password': "password",
+        }
+        req = self.factory.post('/login', post_data)
+        resp = login_user(req)
+        resp_data = json.loads(resp.content)
+
+        self.assertEqual(200, resp.status_code)
+        self.assertEqual("test_access_token", resp_data['access_token'])
+
+    def test_user_login_with_bad_password(self):
+        post_data = {
+            'username': "wrong",
+            'password': "password",
+        }
+        req = self.factory.post('/login', post_data)
+        resp = login_user(req)
+
+        self.assertEqual(404, resp.status_code)
+
+    def test_user_login_with_valid_credentials(self):
+        post_data = {
+            'username': "testuser",
+            'password': "wrong",
+        }
+        req = self.factory.post('/login', post_data)
+        resp = login_user(req)
+
+        self.assertEqual(404, resp.status_code)
