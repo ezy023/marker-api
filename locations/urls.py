@@ -5,7 +5,7 @@ from locations.views import create_location
 from locations.views import delete_location
 
 urlpatterns = [
-    url(r'^create/', create_location),
-    url(r'^delete/', delete_location), # will need location id passed in url '/user/id/locations/id/delete
     url(r'^locations/', all_locations),
+    url(r'^locations/create/', create_location),
+    url(r'^locations/(?P<location_id>\d+)/delete/', delete_location),
 ]

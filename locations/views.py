@@ -31,8 +31,7 @@ def create_location(request):
         return HttpResponseBadRequest(error_data)
 
 # require post request
-def delete_location(request):
-    location_id = request.POST.get('location_id')
+def delete_location(request, location_id):
     if not location_id:
         errors = {"error": "Need location_id to delete location"}
         error_data = json.dumps(errors)

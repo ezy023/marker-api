@@ -76,12 +76,10 @@ class LocationsTestCase(TestCase):
 
     def test_delete_location(self):
         Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url", user=self.user)
-        post_data = {
-            "location_id": 2,
-        }
-        req = self.factory.post('delete/', post_data)
+        location_id = '2'
+        req = self.factory.post('delete/')
         req.user = self.user
-        resp = delete_location(req)
+        resp = delete_location(req, location_id)
         resp_data = json.loads(resp.content)
 
         self.assertEqual('2', resp_data.get('id'))
