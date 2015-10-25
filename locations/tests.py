@@ -19,7 +19,7 @@ class LocationsTestCase(TestCase):
         self.factory = RequestFactory()
         img = open(IMAGE_PATH, "r")
         self.image_file = SimpleUploadedFile("image.jpg", img.read(), content_type='image/png')
-        self.user = User.objects.create(username="test_user", email="test@mail.com")
+        self.user = User.objects.create(email="test@mail.com")
 
     @patch('locations.views._handle_image_upload')
     def test_create_location(self, image_upload_func):

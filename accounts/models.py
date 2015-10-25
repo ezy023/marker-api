@@ -9,10 +9,10 @@ class MyAuthBackend(object):
             if user:
                 return user
 
-        elif 'username' in kwargs and 'password' in kwargs:
-            username = kwargs.get('username')
+        elif 'email' in kwargs and 'password' in kwargs:
+            email = kwargs.get('email')
             password = kwargs.get('password')
-            user = User.objects.get(username=username)
+            user = User.objects.get(email=email)
             if user and user.check_password(password):
                 return user
 
@@ -23,10 +23,11 @@ class MyAuthBackend(object):
         return user
 
 class User(AbstractBaseUser):
-    username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(max_length=100, unique=True)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
 
-    USERNAME_FIELD = 'username' # consider changing this to the email field
+    USERNAME_FIELD = "email"
 
     class Meta:
         db_table = 'users'
@@ -34,7 +35,6 @@ class User(AbstractBaseUser):
     def to_dict(self):
         dict = {
             'id': self.id,
-            'username': self.username,
             'email': self.email,
         }
 
