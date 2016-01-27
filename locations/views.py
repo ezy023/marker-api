@@ -3,20 +3,25 @@ import logging
 
 from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
 
 from locations.forms import LocationForm
 from locations.models import Location
+from aws.s3 import gen_signed_s3_image_post
+
+from oauth.decorators import noauth
 
 logger = logging.getLogger(__name__)
 
-def create_location(request):
-    form = LocationForm(request.POST, request.FILES)
+@csrf_exempt
+def create_location(request, user_id):
+    received_json_data = json.loads(request.body)
+    form = LocationForm(received_json_data)
     if form.is_valid():
         new_location = Location()
         new_location.latitude = form.cleaned_data['latitude']
         new_location.longitude = form.cleaned_data['longitude']
-        image_file = form.cleaned_data['image']
-        new_location.image_url = _handle_image_upload(image_file)
+        new_location.image_url = form.cleaned_data['image_url']
         try:
             request.user.location_set.add(new_location)
         except Exception as e:
@@ -29,6 +34,7 @@ def create_location(request):
         logger.error("Form invalid. %s", form.errors)
         error_data = json.dumps(form.errors)
         return HttpResponseBadRequest(error_data)
+
 
 # require post request
 def delete_location(request, location_id):
@@ -49,7 +55,7 @@ def delete_location(request, location_id):
     return HttpResponse(json.dumps(resp_data))
 
 
-def all_locations(request):
+def all_locations(request, user_id):
     user = request.user
     locations = user.location_set.all()
     location_dicts = map(lambda l: l.to_dict(), locations)
@@ -59,6 +65,8 @@ def all_locations(request):
 
     return HttpResponse(json.dumps(data))
 
-
-def _handle_image_upload(image_file):
-    pass
+@noauth
+@csrf_exempt
+def generate_signed_post_request(request, user_id):
+    data = gen_signed_s3_image_post()
+    return HttpResponse(json.dumps(data), content_type='application/json')

@@ -21,18 +21,16 @@ class LocationsTestCase(TestCase):
         self.image_file = SimpleUploadedFile("image.jpg", img.read(), content_type='image/png')
         self.user = User.objects.create(email="test@mail.com")
 
-    @patch('locations.views._handle_image_upload')
-    def test_create_location(self, image_upload_func):
-        image_upload_func.return_value = "fake.picture.url"
+    def test_create_location(self):
         post_data = {
             "latitude": "45.12345",
             "longitude": "90.67891",
-            "image": self.image_file,
+            "image_url": "fake.picture.url",
         }
 
-        req = self.factory.post('create/', post_data)
+        req = self.factory.post('create/', json.dumps(post_data), content_type="application/json")
         req.user = self.user
-        resp = create_location(req)
+        resp = create_location(req, self.user.id)
         resp_data = json.loads(resp.content)
 
         self.assertEqual(200, resp.status_code)
@@ -47,30 +45,30 @@ class LocationsTestCase(TestCase):
             "longitude": "90.67891",
         }
 
-        req = self.factory.post('create/', post_data)
-        resp = create_location(req)
+        req = self.factory.post('create/', json.dumps(post_data), content_type="application/json")
+        resp = create_location(req, self.user.id)
 
         self.assertEqual(400, resp.status_code)
 
     def test_create_location_no_latitude(self):
         post_data = {
             "longitude": "90.67891",
-            "image": self.image_file,
+            "image_url": "fake.image.url",
         }
 
-        req = self.factory.post('create/', post_data)
-        resp = create_location(req)
+        req = self.factory.post('create/', json.dumps(post_data), content_type="application/json")
+        resp = create_location(req, self.user.id)
 
         self.assertEqual(400, resp.status_code)
 
     def test_create_location_no_longitude(self):
         post_data = {
             "latitude": "45.12345",
-            "image": self.image_file,
+            "image_url": "fake.image.url",
         }
 
-        req = self.factory.post('create/', post_data)
-        resp = create_location(req)
+        req = self.factory.post('create/', json.dumps(post_data), content_type="application/json")
+        resp = create_location(req, self.user.id)
 
         self.assertEqual(400, resp.status_code)
 
@@ -89,7 +87,7 @@ class LocationsTestCase(TestCase):
         Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url2", user=self.user)
         req = self.factory.get('locations/')
         req.user = self.user
-        resp = all_locations(req)
+        resp = all_locations(req, self.user.id)
         resp_data = json.loads(resp.content)
 
         self.assertEqual(2, len(resp_data.get('data')))
