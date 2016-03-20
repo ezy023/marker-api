@@ -19,37 +19,39 @@ logger = logging.getLogger(__name__)
 @noauth
 @csrf_exempt
 def create_user(request):
-    if request.POST:
-        form = UserRegistrationForm(data=request.POST)
-        if form.is_valid():
-            user = User()
-            user.email = form.cleaned_data.get('email')
-            user.set_password(form.cleaned_data.get('password'))
-            with transaction.atomic():
-                user.save()
-                token = Token.create_token()
-                user.token_set.add(token)
-
-            logger.info("New user created. Email: %s", user.email)
-            user_dict = user.to_dict()
-            user_dict['access_token'] = token.token
-            data = json.dumps(user_dict)
-            return HttpResponse(data)
-        else:
-            logger.error("Invalid form to create new user. Errors: %s", form.errors)
-            data = json.dumps(form.errors)
-            return HttpResponseBadRequest(data)
-    else:
+    if not request.method == 'POST':
         return HttpResponseNotAllowed(['POST'])
+
+    post_params = json.loads(request.body)
+    form = UserRegistrationForm(data=post_params)
+    if form.is_valid():
+        user = User()
+        user.email = form.cleaned_data.get('email')
+        user.set_password(form.cleaned_data.get('password'))
+        with transaction.atomic():
+            user.save()
+            token = Token.create_token()
+            user.token_set.add(token)
+
+        logger.info("New user created. Email: %s", user.email)
+        user_dict = user.to_dict()
+        user_dict['access_token'] = token.token
+        data = json.dumps(user_dict)
+        return HttpResponse(data)
+    else:
+        logger.error("Invalid form to create new user. Errors: %s", form.errors)
+        data = json.dumps(form.errors)
+        return HttpResponseBadRequest(data)
 
 @noauth
 @csrf_exempt
 def login_user(request):
-    if not request.POST:
+    if not request.method == 'POST':
         return HttpResponseNotAllowed(['POST'])
 
-    email = request.POST.get('email')
-    password = request.POST.get('password')
+    post_params = json.loads(request.body)
+    email = post_params.get('email')
+    password = post_params.get('password')
     user = None
     try:
         user = authenticate(email=email, password=password)

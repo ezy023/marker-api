@@ -15,13 +15,12 @@ class UserCreationTestCase(TestCase):
         self.factory = RequestFactory()
 
     def test_user_creation(self):
-        test_email = 'test@example.com'
+        test_email = "test@example.com"
         post_data = {
-            'email': test_email,
-            'password': 'password'
+            "email": test_email,
+            "password": "password"
         }
-        req = self.factory.post('/create', data=post_data)
-        resp = create_user(req)
+        resp = self.client.post('/users/create/', data=json.dumps(post_data), content_type="application/json")
         resp_content = json.loads(resp.content)
         created_user = User.objects.get(id=resp_content.get('id'))
 
@@ -33,8 +32,9 @@ class UserCreationTestCase(TestCase):
         post_data = {
             'password': 'password'
         }
-        req = self.factory.post('/create', data=post_data)
-        resp = create_user(req)
+        resp = self.client.post('/users/create/',
+                               data=json.dumps(post_data),
+                               content_type='application/json')
 
         self.assertEqual(400, resp.status_code)
 
@@ -43,8 +43,9 @@ class UserCreationTestCase(TestCase):
         post_data = {
             'email': test_email,
         }
-        req = self.factory.post('/create', data=post_data)
-        resp = create_user(req)
+        resp = self.client.post('/users/create/',
+                               data=json.dumps(post_data),
+                               content_type='application/json')
 
         self.assertEqual(400, resp.status_code)
 
@@ -72,8 +73,9 @@ class UserLoginTestCase(TestCase):
             'email': "test@example.com",
             'password': "password",
         }
-        req = self.factory.post('/login', post_data)
-        resp = login_user(req)
+        resp = self.client.post('/users/login/',
+                                data=json.dumps(post_data),
+                                content_type='application/json')
         resp_data = json.loads(resp.content)
 
         self.assertEqual(200, resp.status_code)
@@ -84,7 +86,8 @@ class UserLoginTestCase(TestCase):
             'email': "test@example.com",
             'password': "badpassword",
         }
-        req = self.factory.post('/login', post_data)
-        resp = login_user(req)
+        resp = self.client.post('/users/login/',
+                                data=json.dumps(post_data),
+                                content_type='application/json')
 
         self.assertEqual(404, resp.status_code)
