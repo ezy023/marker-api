@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'oauth',
     'locations',
     'commons',
+    'hc',
 )
 
 MIDDLEWARE_CLASSES = (
