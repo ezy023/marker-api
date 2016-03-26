@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'locations',
     'commons',
     'hc',
+    'tagging',
 )
 
 MIDDLEWARE_CLASSES = (
