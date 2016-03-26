@@ -7,7 +7,8 @@ class Location(models.Model):
     # Plan on storing 5 decimal places for now, with 8 total digits
     latitude = models.DecimalField(max_digits=10, decimal_places=8)
     longitude = models.DecimalField(max_digits=11, decimal_places=8)
-    image_url = models.CharField(max_length=1024)
+    image_url = models.CharField(max_length=1024) # this may become longer?
+    # visited = models.BooleanField(default=False)
     user = models.ForeignKey('accounts.User')
 
     class Meta:
