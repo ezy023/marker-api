@@ -4,13 +4,14 @@ import os
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory
 from django.test import TestCase
-from mock import patch
 
 from accounts.models import User
 from locations.models import Location
 from locations.views import all_locations
 from locations.views import create_location
 from locations.views import delete_location
+from oauth.models import Token
+from tagging.models import Tag
 
 IMAGE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mock_data", "mock_image.png")
 
@@ -91,3 +92,34 @@ class LocationsTestCase(TestCase):
         resp_data = json.loads(resp.content)
 
         self.assertEqual(2, len(resp_data.get('data')))
+
+class LocationsWithTagsTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(email="test@email.com",
+                                        password="password",
+                                        first_name="Erik",
+                                        last_name="Test")
+
+        self.user_token = Token.objects.create(token="test_token",
+                                               user=self.user)
+
+        # self.tag1 = Tag.objects.create(tag_name="tag1", user=self.user)
+        # self.tag2 = Tag.objects.create(tag_name="tag2", user=self.user)
+
+    def test_create_location_with_tag(self):
+        url = '/users/{user_id}/locations/create/'
+        post_data = {
+            "latitude": "45.12345",
+            "longitude": "90.67891",
+            "image_url": "fake.picture.url",
+        }
+
+        response = self.client.post(url.format(user_id=self.user.id))
+        new_location = Location.objects.first()
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(new_location.tags))
+
+    def test_dummy_test(self):
+        tag = Tag.objects.create(tag_name="tag1", user=self.user)
+        self.assertTrue(True)

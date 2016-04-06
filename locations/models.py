@@ -5,10 +5,16 @@ class LocationManager(models.Manager):
 
 class Location(models.Model):
     # Plan on storing 5 decimal places for now, with 8 total digits
+    # I want to add an index on latitude and longitude
+    # The index should use a BTREE https://dev.mysql.com/doc/refman/5.5/en/index-btree-hash.html
     latitude = models.DecimalField(max_digits=10, decimal_places=8)
     longitude = models.DecimalField(max_digits=11, decimal_places=8)
     image_url = models.CharField(max_length=1024)
     user = models.ForeignKey('accounts.User')
+    # tags = models.ManyToManyField('tagging.Tag',
+    #                               through='LocationTags',
+    #                               through_fields=('location_id', 'tag_id'),
+    #                               related_name='tags')
 
     class Meta:
         db_table = 'locations'
