@@ -32,9 +32,10 @@ def create_location(request, user_id):
 
         # Add tags to the location if any were passed
         tag_ids = form.cleaned_data['tag_ids']
-        tags = Tag.objects.filter(id__in=tag_ids)
-        for tag in tags:
-            LocationTags.objects.create(tag=tag, location=new_location)
+        if tag_ids:
+            tags = Tag.objects.filter(id__in=tag_ids)
+            for tag in tags:
+                LocationTags.objects.create(tag=tag, location=new_location)
 
         data = json.dumps(new_location.to_dict())
         return HttpResponse(data)

@@ -24,6 +24,9 @@ class IntegerListField(forms.Field):
                                         *args, **kwargs)
 
     def to_python(self, value):
+        if not value:
+            return []
+
         return map(int, value)
 
 
