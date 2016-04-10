@@ -8,6 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from locations.forms import LocationForm
 from locations.models import Location
 from aws.s3 import gen_signed_s3_image_post
+from tagging.models import LocationTags
+from tagging.models import Tag
 
 from oauth.decorators import noauth
 
@@ -27,6 +29,13 @@ def create_location(request, user_id):
         except Exception as e:
             logger.error("Error associating location to user. User %s Location %s. %s", request.user, new_location, e.message)
             return HttpResponseBadRequest(e.message)
+
+        # Add tags to the location if any were passed
+        tag_ids = form.cleaned_data['tag_ids']
+        if tag_ids:
+            tags = Tag.objects.filter(id__in=tag_ids)
+            for tag in tags:
+                LocationTags.objects.create(tag=tag, location=new_location)
 
         data = json.dumps(new_location.to_dict())
         return HttpResponse(data)

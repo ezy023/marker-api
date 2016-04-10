@@ -4,13 +4,14 @@ import os
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import RequestFactory
 from django.test import TestCase
-from mock import patch
 
 from accounts.models import User
 from locations.models import Location
 from locations.views import all_locations
 from locations.views import create_location
 from locations.views import delete_location
+from oauth.models import Token
+from tagging.models import Tag
 
 IMAGE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "mock_data", "mock_image.png")
 
@@ -73,14 +74,14 @@ class LocationsTestCase(TestCase):
         self.assertEqual(400, resp.status_code)
 
     def test_delete_location(self):
-        Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url", user=self.user)
-        location_id = '2'
+        location = Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url", user=self.user)
+        location_id = location.id
         req = self.factory.post('delete/')
         req.user = self.user
         resp = delete_location(req, location_id)
         resp_data = json.loads(resp.content)
 
-        self.assertEqual('2', resp_data.get('id'))
+        self.assertEqual(location.id, resp_data.get('id'))
 
     def test_get_all_locations(self):
         Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url", user=self.user)
@@ -91,3 +92,34 @@ class LocationsTestCase(TestCase):
         resp_data = json.loads(resp.content)
 
         self.assertEqual(2, len(resp_data.get('data')))
+
+class LocationsWithTagsTestCase(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(email="test@email.com",
+                                        password="password",
+                                        first_name="Erik",
+                                        last_name="Test")
+
+        self.user_token = Token.objects.create(token="test_token",
+                                               user=self.user)
+
+        self.tag1 = Tag.objects.create(tag_name="tag1", user=self.user)
+        self.tag2 = Tag.objects.create(tag_name="tag2", user=self.user)
+
+    def test_create_location_with_tag(self):
+        url = '/users/{user_id}/locations/create/?access_token={access_token}'
+        formatted_url = url.format(user_id=self.user.id, access_token=self.user_token.token)
+        post_data = {
+            "latitude": "45.12345",
+            "longitude": "90.67891",
+            "image_url": "fake.picture.url",
+            "tag_ids": [self.tag1.id, self.tag2.id],
+        }
+
+        response = self.client.post(formatted_url,
+                                    data=json.dumps(post_data),
+                                    content_type='application/json')
+        new_location = Location.objects.first()
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(2, len(new_location.tags.all()))
