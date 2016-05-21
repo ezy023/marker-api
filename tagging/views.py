@@ -6,6 +6,7 @@ from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseNotFound
 from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
 
 from accounts.models import User
 from tagging.forms import TagForm
@@ -13,6 +14,7 @@ from tagging.models import Tag
 
 logger = logging.getLogger(__name__)
 
+@csrf_exempt
 def create_tag(request, user_id):
     if request.method != 'POST':
         error_dict = {"message": "Method not allowed"}

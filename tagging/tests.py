@@ -20,13 +20,15 @@ class TaggingTestCase(TestCase):
         pass
 
     def test_create_tag(self):
-        url = '/users/{user_id}/tags/create/?access_token={access_token}'
+        url = '/users/{user_id}/tags/create/'
+        auth_header = "Token %s" % self.user_token.token
         post_data = {
             "tag_name": "test tag 1"
         }
-        response = self.client.post(url.format(user_id=self.user.id, access_token=self.user_token.token),
+        response = self.client.post(url.format(user_id=self.user.id),
                                     data=json.dumps(post_data),
-                                    content_type='application/json')
+                                    content_type='application/json',
+                                    HTTP_AUTHORIZATION=auth_header)
         resp_content = json.loads(response.content)
         created_tag = Tag.objects.get(id=resp_content.get('id'))
 
@@ -38,11 +40,12 @@ class TaggingTestCase(TestCase):
         tag = Tag.objects.create(tag_name="test tag deletion",
                                  user=self.user)
 
-        url = '/users/{user_id}/tags/{tag_id}/delete/?access_token={access_token}'
+        url = '/users/{user_id}/tags/{tag_id}/delete/'
+        auth_header = "Token %s" % self.user_token.token
         response = self.client.post(url.format(user_id=self.user.id,
-                                               tag_id=tag.id,
-                                               access_token=self.user_token.token),
-                                    content_type='application/json')
+                                               tag_id=tag.id,),
+                                    content_type='application/json',
+                                    HTTP_AUTHORIZATION=auth_header)
         resp_content = json.loads(response.content)
 
         self.assertEqual(200, response.status_code)
@@ -59,10 +62,12 @@ class TaggingTestCase(TestCase):
         tag3 = Tag.objects.create(tag_name="tag3",
                                  user=self.user)
 
-        url = '/users/{user_id}/tags/?access_token={access_token}'
+        url = '/users/{user_id}/tags/'
+        auth_header = "Token %s" % self.user_token.token
 
-        response = self.client.post(url.format(user_id=self.user.id,
-                                               access_token=self.user_token.token))
+        response = self.client.post(url.format(user_id=self.user.id),
+                                    HTTP_AUTHORIZATION=auth_header)
+
         resp_content = json.loads(response.content)
 
         self.assertEqual(200, response.status_code)
