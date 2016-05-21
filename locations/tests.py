@@ -107,18 +107,20 @@ class LocationsWithTagsTestCase(TestCase):
         self.tag2 = Tag.objects.create(tag_name="tag2", user=self.user)
 
     def test_create_location_with_tag(self):
-        url = '/users/{user_id}/locations/create/?access_token={access_token}'
-        formatted_url = url.format(user_id=self.user.id, access_token=self.user_token.token)
+        url = '/users/{user_id}/locations/create/'
+        formatted_url = url.format(user_id=self.user.id)
         post_data = {
             "latitude": "45.12345",
             "longitude": "90.67891",
             "image_url": "fake.picture.url",
             "tag_ids": [self.tag1.id, self.tag2.id],
         }
+        auth_header = "Token %s" % self.user_token.token
 
         response = self.client.post(formatted_url,
                                     data=json.dumps(post_data),
-                                    content_type='application/json')
+                                    content_type='application/json',
+                                    HTTP_AUTHORIZATION=auth_header)
         new_location = Location.objects.first()
 
         self.assertEqual(200, response.status_code)
