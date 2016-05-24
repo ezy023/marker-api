@@ -125,3 +125,13 @@ class LocationsWithTagsTestCase(TestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(2, len(new_location.tags.all()))
+
+    def test_filter_locations_by_tag(self):
+        url = '/users/{user_id}/locations/?tag_id=1&tag_id=2'
+        formatted_url = url.format(user_id=self.user.id)
+        auth_header = "Token %s" % self.user_token.token
+
+        response = self.client.get(formatted_url,
+                                    HTTP_AUTHORIZATION=auth_header)
+
+        self.assertEqual(200, response.status_code)
