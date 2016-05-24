@@ -28,6 +28,7 @@ def create_tag(request, user_id):
         new_tag.user = request.user
         new_tag.save()
         data = json.dumps(new_tag.to_dict())
+        logger.info("New Tag created name: %s id: %s", new_tag.tag_name, new_tag.id)
         return HttpResponse(data)
     else:
         logger.error("Invalid Tag Form. %s", form.errors)
