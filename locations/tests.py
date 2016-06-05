@@ -74,7 +74,7 @@ class LocationsTestCase(TestCase):
         self.assertEqual(400, resp.status_code)
 
     def test_delete_location(self):
-        location = Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url", user=self.user)
+        location = Location.objects.create(coordinates="POINT(45.00 45.00)", image_url="fake.url", user=self.user)
         location_id = location.id
         req = self.factory.post('delete/')
         req.user = self.user
@@ -84,8 +84,8 @@ class LocationsTestCase(TestCase):
         self.assertEqual(location.id, resp_data.get('id'))
 
     def test_get_all_locations(self):
-        Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url", user=self.user)
-        Location.objects.create(longitude=45.00, latitude=45.00, image_url="fake.url2", user=self.user)
+        Location.objects.create(coordinates="POINT(45.00 45.00)", image_url="fake.url", user=self.user)
+        Location.objects.create(coordinates="POINT(45.00 45.00)", image_url="fake.url2", user=self.user)
         req = self.factory.get('locations/')
         req.user = self.user
         resp = all_locations(req, self.user.id)

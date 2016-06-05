@@ -21,8 +21,8 @@ def create_location(request, user_id):
     form = LocationForm(received_json_data)
     if form.is_valid():
         new_location = Location()
-        new_location.latitude = form.cleaned_data['latitude']
-        new_location.longitude = form.cleaned_data['longitude']
+        coordinates_point_string = "POINT(%s %s)" % (form.cleaned_data['latitude'], form.cleaned_data['longitude'])
+        new_location.coordinates = coordinates_point_string
         new_location.image_url = form.cleaned_data['image_url']
         try:
             request.user.location_set.add(new_location)
