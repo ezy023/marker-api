@@ -12,7 +12,7 @@ class Location(models.Model):
     tags = models.ManyToManyField('tagging.Tag',
                                   through='tagging.LocationTags',
                                   through_fields=('location_id', 'tag_id'),
-                                  related_name='tags')
+                                  related_name='tag_locations')
 
     class Meta:
         db_table = 'locations'

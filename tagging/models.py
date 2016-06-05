@@ -10,7 +10,7 @@ class Tag(models.Model):
     user = models.ForeignKey('accounts.User')
     locations = models.ManyToManyField('locations.Location',
                                        through="LocationTags",
-                                       related_name='tags')
+                                       related_name='location_tags')
 
     class Meta:
         # managed = False

@@ -124,4 +124,4 @@ class LocationsWithTagsTestCase(TestCase):
         new_location = Location.objects.first()
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(2, len(new_location.tags.all()))
+        self.assertEqual(2, len(new_location.location_tags.all()))
