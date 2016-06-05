@@ -13,7 +13,7 @@ class Tag(models.Model):
                                        related_name='tags')
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'tags'
 
     objects = TagManager()
@@ -38,7 +38,7 @@ class LocationTags(models.Model):
     location = models.ForeignKey('locations.Location', related_name='locations')
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = "location_tags"
 
     objects = LocationTagsManager()
