@@ -67,7 +67,10 @@ def delete_location(request, location_id):
 def all_locations(request, user_id):
     user = request.user
     locations = user.location_set.all()
-    location_dicts = map(lambda l: l.to_dict(), locations)
+    location_dicts = {}
+    if locations:
+        location_dicts = map(lambda l: l.to_dict(), locations)
+
     data = {
         "data": location_dicts,
     }
